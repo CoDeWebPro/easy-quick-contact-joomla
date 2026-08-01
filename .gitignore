@@ -1,0 +1,7 @@
+_ci_debug/
+package/
+module-package.zip
+joomla/
+joomla.zip
+*.zip
+!update.xml

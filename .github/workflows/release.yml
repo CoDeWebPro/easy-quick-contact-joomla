@@ -26,16 +26,17 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     strategy:
+      fail-fast: false
       matrix:
         include:
           - joomla: "4.4.5"
-            php: "7.2.5"
+            php: "7.2"
             package_url: "https://downloads.joomla.org/cms/joomla4/4-4-5/Joomla_4-4-5-Stable-Full_Package.zip?format=zip"
           - joomla: "5.1.0"
-            php: "8.1.0"
+            php: "8.1"
             package_url: "https://downloads.joomla.org/cms/joomla5/5-1-0/Joomla_5-1-0-Stable-Full_Package.zip?format=zip"
           - joomla: "6.1.2"
-            php: "8.3.0"
+            php: "8.3"
             package_url: "https://downloads.joomla.org/cms/joomla6/6-1-2/Joomla_6-1-2-Stable-Full_Package.zip?format=zip"
 
     env:
@@ -47,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -75,26 +76,31 @@ jobs:
       - name: Create Joomla temporary directories
         run: |
           mkdir -p joomla/tmp joomla/logs joomla/administrator/logs
-          chmod -R 775 joomla/tmp joomla/logs joomla/administrator/logs
+          chmod -R 777 joomla/tmp joomla/logs joomla/administrator/logs
 
       - name: Install Joomla via CLI
         run: |
           cd joomla
-          php installation/joomla.php install \
-            --site-name="Easy Quick Contact Test" \
-            --admin-user="Easy Quick Contact Administrator" \
-            --admin-username="admin" \
-            --admin-password="Admin123!Pass" \
-            --admin-email="admin@example.com" \
-            --db-type=mysqli \
-            --db-host="$DB_HOST" \
-            --db-user="$DB_USER" \
-            --db-pass="$DB_PASSWORD" \
-            --db-name="$DB_NAME" \
-            --db-prefix="jos_" \
-            --db-encryption=0 \
-            --public-folder="" \
+          ARGS=(
+            --site-name="Easy Quick Contact Test"
+            --admin-user="Easy Quick Contact Administrator"
+            --admin-username="admin"
+            --admin-password="Admin123!Pass"
+            --admin-email="admin@example.com"
+            --db-type=mysqli
+            --db-host="$DB_HOST"
+            --db-user="$DB_USER"
+            --db-pass="$DB_PASSWORD"
+            --db-name="$DB_NAME"
+            --db-prefix="jos_"
+            --db-encryption=0
             --no-interaction
+          )
+          # --public-folder exists only on Joomla 5+
+          case "${{ matrix.joomla }}" in
+            5.*|6.*) ARGS+=(--public-folder=) ;;
+          esac
+          php installation/joomla.php install "${ARGS[@]}"
 
       - name: Validate manifest extension type and folder name
         run: |
@@ -114,7 +120,7 @@ jobs:
         run: |
           set -euo pipefail
           PACKAGE_DIR=package
-          rm -rf "$PACKAGE_DIR"
+          rm -rf "$PACKAGE_DIR" module-package.zip
           mkdir -p "$PACKAGE_DIR"
           rsync -a --delete \
             --exclude='.git' \
@@ -125,6 +131,8 @@ jobs:
             --exclude='joomla.zip' \
             --exclude='package' \
             --exclude='module-package.zip' \
+            --exclude='_ci_debug' \
+            --exclude='README.md' \
             ./ "$PACKAGE_DIR/"
           (cd "$PACKAGE_DIR" && zip -r ../module-package.zip .)
           echo "module-package.zip created:"
@@ -133,13 +141,25 @@ jobs:
       - name: Install module with Joomla CLI (show errors)
         run: |
           set -euo pipefail
+          # Joomla InstallerHelper::unpack() extracts next to the package using dirname($path).
+          # Relative paths like ../module-package.zip yield an empty extract dir → type=false.
+          PACKAGE_PATH="${GITHUB_WORKSPACE}/module-package.zip"
           cd joomla
-          if ! php cli/joomla.php extension:install --path=../module-package.zip 2>&1 | tee /tmp/joomla-install-output.txt; then
-            echo "Joomla extension installer reported an error. Showing package contents and installer output:" >&2
+          if ! php cli/joomla.php extension:install --path="$PACKAGE_PATH" 2>&1 | tee /tmp/joomla-install-output.txt; then
+            echo "Joomla extension installer reported an error." >&2
             echo "----- installer output -----" >&2
             cat /tmp/joomla-install-output.txt >&2 || true
+            echo "----- package path -----" >&2
+            ls -la "$PACKAGE_PATH" >&2 || true
             echo "----- zip listing -----" >&2
-            unzip -l ../module-package.zip >&2 || true
+            unzip -l "$PACKAGE_PATH" >&2 || true
+            echo "----- joomla logs -----" >&2
+            ls -la administrator/logs >&2 || true
+            for f in administrator/logs/*; do
+              [ -f "$f" ] && { echo "=== $f ===" >&2; tail -n 80 "$f" >&2; }
+            done || true
+            echo "----- configuration tmp/log paths -----" >&2
+            php -r 'include "configuration.php"; $c=new JConfig; echo "tmp_path={$c->tmp_path}\nlog_path={$c->log_path}\n";' >&2 || true
             echo "----- end -----" >&2
             exit 1
           fi
@@ -178,7 +198,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Get version from manifest
         id: version
@@ -190,7 +210,13 @@ jobs:
         id: package
         run: |
           PACKAGE_NAME="easy-quick-contact-joomla-${{ steps.version.outputs.VERSION }}.zip"
-          zip -r "$PACKAGE_NAME" . -x "$PACKAGE_NAME" ".git/*" ".github/*"
+          zip -r "$PACKAGE_NAME" . \
+            -x "$PACKAGE_NAME" \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "_ci_debug/*" \
+            -x "package/*" \
+            -x "module-package.zip"
           echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release and upload package
@@ -202,4 +228,5 @@ jobs:
           files: ${{ steps.package.outputs.PACKAGE_NAME }}
           draft: false
           prerelease: false
+          allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
