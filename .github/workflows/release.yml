@@ -1,13 +1,73 @@
-name: Release
+name: CI / Release
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  test:
+    name: Joomla compatibility tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - joomla: "4.4.5"
+            php: "7.2.5"
+            package_url: "https://downloads.joomla.org/cms/joomla4/4-4-5/Joomla_4-4-5-Stable-Full_Package.zip?format=zip"
+          - joomla: "5.1.0"
+            php: "8.1.0"
+            package_url: "https://downloads.joomla.org/cms/joomla5/5-1-0/Joomla_5-1-0-Stable-Full_Package.zip?format=zip"
+          - joomla: "6.1.2"
+            php: "8.3.0"
+            package_url: "https://downloads.joomla.org/cms/joomla6/6-1-2/Joomla_6-1-2-Stable-Full_Package.zip?format=zip"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v4
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, curl, json, zip, mysqli
+
+      - name: Install required packages
+        run: sudo apt-get update && sudo apt-get install -y unzip rsync
+
+      - name: Download Joomla ${{ matrix.joomla }}
+        run: |
+          echo "Downloading Joomla ${matrix.joomla}"
+          curl -L "${{ matrix.package_url }}" -o joomla.zip
+          unzip -q joomla.zip -d joomla
+
+      - name: Copy module into Joomla
+        run: |
+          mkdir -p joomla/modules/mod_easyquickcontact
+          rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='vendor' . joomla/modules/mod_easyquickcontact
+
+      - name: Validate PHP syntax in module files
+        run: |
+          find joomla/modules/mod_easyquickcontact -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate module manifest XML
+        run: php -r 'new SimpleXMLElement(file_get_contents("mod_easyquickcontact.xml")); echo "mod_easyquickcontact.xml is valid XML\n";'
+
+      - name: Validate update.xml
+        run: php -r 'new SimpleXMLElement(file_get_contents("update.xml")); echo "update.xml is valid XML\n";'
+
+      - name: Report test environment
+        run: |
+          echo "Joomla version: ${{ matrix.joomla }}"
+          php -v
+
   release:
     name: Build and publish release
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
