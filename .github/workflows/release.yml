@@ -80,20 +80,21 @@ jobs:
       - name: Install Joomla via CLI
         run: |
           cd joomla
-          php cli/joomla.php site:install \
-            --db-driver=mysqli \
+          php installation/joomla.php install \
+            --site-name="Easy Quick Contact Test" \
+            --admin-user="Easy Quick Contact Administrator" \
+            --admin-username="admin" \
+            --admin-password="Admin123!Pass" \
+            --admin-email="admin@example.com" \
+            --db-type=mysqli \
             --db-host="$DB_HOST" \
             --db-user="$DB_USER" \
             --db-pass="$DB_PASSWORD" \
             --db-name="$DB_NAME" \
             --db-prefix="jos_" \
-            --db-port="$DB_PORT" \
-            --site-name="Easy Quick Contact Test" \
-            --admin-user="admin" \
-            --admin-password="Admin123!" \
-            --admin-email="admin@example.com" \
-            --site-locale="en-GB" \
-            --site-offline=0
+            --db-encryption=0 \
+            --public-folder="" \
+            --no-interaction
 
       - name: Validate manifest extension type and folder name
         run: |
