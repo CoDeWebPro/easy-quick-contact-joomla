@@ -127,6 +127,7 @@ jobs:
           rsync -a --delete \
             --exclude='.git' \
             --exclude='.github' \
+            --exclude='.gitignore' \
             --exclude='node_modules' \
             --exclude='vendor' \
             --exclude='joomla' \
@@ -216,6 +217,7 @@ jobs:
             -x "$PACKAGE_NAME" \
             -x ".git/*" \
             -x ".github/*" \
+            -x ".gitignore" \
             -x "_ci_debug/*" \
             -x "package/*" \
             -x "module-package.zip"

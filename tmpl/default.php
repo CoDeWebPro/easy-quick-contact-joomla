@@ -82,6 +82,7 @@ $contactId       = 'je_contact_' . $moduleId;
 						value="<?php echo htmlspecialchars($postedName, ENT_QUOTES, 'UTF-8'); ?>"
 						class="requiredField"
 						placeholder="<?php echo htmlspecialchars($labelName, ENT_QUOTES, 'UTF-8'); ?>"
+						data-eqc-error-empty="<?php echo htmlspecialchars(Text::_('MOD_EASYQUICKCONTACT_ERROR_NAME'), ENT_QUOTES, 'UTF-8'); ?>"
 						required
 					/>
 					<?php if (!empty($errors['name'])) : ?>
@@ -98,6 +99,8 @@ $contactId       = 'je_contact_' . $moduleId;
 						value="<?php echo htmlspecialchars($postedEmail, ENT_QUOTES, 'UTF-8'); ?>"
 						class="email requiredField"
 						placeholder="<?php echo htmlspecialchars($labelEmail, ENT_QUOTES, 'UTF-8'); ?>"
+						data-eqc-error-empty="<?php echo htmlspecialchars(Text::_('MOD_EASYQUICKCONTACT_ERROR_EMAIL'), ENT_QUOTES, 'UTF-8'); ?>"
+						data-eqc-error-invalid="<?php echo htmlspecialchars(Text::_('MOD_EASYQUICKCONTACT_ERROR_EMAIL_INVALID'), ENT_QUOTES, 'UTF-8'); ?>"
 						required
 					/>
 					<?php if (!empty($errors['email'])) : ?>
@@ -125,6 +128,7 @@ $contactId       = 'je_contact_' . $moduleId;
 						class="requiredField"
 						rows="6"
 						placeholder="<?php echo htmlspecialchars($labelMessage, ENT_QUOTES, 'UTF-8'); ?>"
+						data-eqc-error-empty="<?php echo htmlspecialchars(Text::_('MOD_EASYQUICKCONTACT_ERROR_MESSAGE'), ENT_QUOTES, 'UTF-8'); ?>"
 						required
 					><?php echo htmlspecialchars($postedMessage, ENT_QUOTES, 'UTF-8'); ?></textarea>
 					<?php if (!empty($errors['message'])) : ?>
@@ -143,6 +147,7 @@ $contactId       = 'je_contact_' . $moduleId;
 							id="<?php echo $formId; ?>-captcha"
 							value=""
 							inputmode="numeric"
+							data-eqc-error-empty="<?php echo htmlspecialchars(Text::_('MOD_EASYQUICKCONTACT_ERROR_CAPTCHA'), ENT_QUOTES, 'UTF-8'); ?>"
 							required
 						/>
 						<?php if (!empty($errors['captcha'])) : ?>

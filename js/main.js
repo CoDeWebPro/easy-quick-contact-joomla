@@ -46,26 +46,88 @@
 		document.querySelectorAll('[data-eqc-modal].is-visible').forEach(closeModal);
 	});
 
-	function clearFieldErrors(form) {
-		form.querySelectorAll('.error.eqc-js-error').forEach(function (node) {
+	function isValidatable(field) {
+		return field
+			&& field.classList
+			&& (field.classList.contains('requiredField') || field.classList.contains('requiredCaptcha'));
+	}
+
+	function clearFieldError(field) {
+		field.classList.remove('invalid');
+		var wrap = closest(field, '.input') || field.parentNode;
+		if (!wrap) {
+			return;
+		}
+		wrap.querySelectorAll('.error').forEach(function (node) {
 			node.remove();
-		});
-		form.querySelectorAll('.invalid').forEach(function (node) {
-			node.classList.remove('invalid');
 		});
 	}
 
 	function addError(field, message) {
 		field.classList.add('invalid');
+		var wrap = closest(field, '.input') || field.parentNode;
+		if (!wrap) {
+			return;
+		}
 		var span = document.createElement('span');
 		span.className = 'error eqc-js-error';
 		span.textContent = message;
-		field.parentNode.appendChild(span);
+		wrap.appendChild(span);
 	}
 
 	function isValidEmail(value) {
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 	}
+
+	function validateField(field) {
+		if (!isValidatable(field)) {
+			return true;
+		}
+
+		clearFieldError(field);
+		var value = (field.value || '').trim();
+
+		if (!value) {
+			addError(field, field.getAttribute('data-eqc-error-empty') || '');
+			return false;
+		}
+
+		if (field.classList.contains('email') && !isValidEmail(value)) {
+			addError(field, field.getAttribute('data-eqc-error-invalid') || '');
+			return false;
+		}
+
+		return true;
+	}
+
+	function validateForm(form) {
+		var hasError = false;
+		form.querySelectorAll('.requiredField, .requiredCaptcha').forEach(function (field) {
+			if (!validateField(field)) {
+				hasError = true;
+			}
+		});
+		return !hasError;
+	}
+
+	document.addEventListener('input', function (event) {
+		var field = event.target;
+		if (!isValidatable(field) || !closest(field, 'form.eqc-form')) {
+			return;
+		}
+		if (field.dataset.eqcTouched === '1' || field.classList.contains('invalid')) {
+			validateField(field);
+		}
+	});
+
+	document.addEventListener('focusout', function (event) {
+		var field = event.target;
+		if (!isValidatable(field) || !closest(field, 'form.eqc-form')) {
+			return;
+		}
+		field.dataset.eqcTouched = '1';
+		validateField(field);
+	});
 
 	document.addEventListener('submit', function (event) {
 		var form = event.target;
@@ -73,39 +135,15 @@
 			return;
 		}
 
-		clearFieldErrors(form);
-		var hasError = false;
-
-		form.querySelectorAll('.requiredField').forEach(function (field) {
-			var value = (field.value || '').trim();
-			var label = field.getAttribute('placeholder') || 'field';
-
-			if (!value) {
-				addError(field, 'Please enter your ' + label + '!');
-				hasError = true;
-				return;
-			}
-
-			if (field.classList.contains('email') && !isValidEmail(value)) {
-				addError(field, "You've entered an invalid " + label + '!');
-				hasError = true;
-			}
+		form.querySelectorAll('.requiredField, .requiredCaptcha').forEach(function (field) {
+			field.dataset.eqcTouched = '1';
 		});
 
-		form.querySelectorAll('.requiredCaptcha').forEach(function (field) {
-			if (!(field.value || '').trim()) {
-				var label = field.previousElementSibling
-					? field.previousElementSibling.textContent.replace(/:$/, '').trim()
-					: 'Captcha';
-				addError(field, 'Please enter the correct ' + label + '!');
-				hasError = true;
-			}
-		});
-
-		if (hasError) {
+		if (!validateForm(form)) {
 			event.preventDefault();
 		}
 	});
+
 	document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('.mod-easyquickcontact[data-eqc-force-modal="1"]').forEach(function (wrap) {
 			openModal(wrap.querySelector('[data-eqc-modal]'));
