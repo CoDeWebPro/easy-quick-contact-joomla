@@ -6,7 +6,7 @@ A customizable contact form module for Joomla! with popup modal support and buil
 
 Easy Quick Contact is a lightweight, user-friendly contact form module that allows visitors to quickly get in touch with you. The module features customizable colors, popup modal support, and a simple math-based CAPTCHA to prevent spam.
 
-**Important Notice:** This module is **not an official JoomBoost product**. It has been reworked and modernized by enthusiasts to support modern Joomla! versions using current best practices and coding standards.
+**Important Notice:** This module is **not an official JoomBoost product**. It is a community remake originally based on a JoomBoost module and has been reworked and modernized by Sergey Shcherbakov to support modern Joomla! versions using current best practices and coding standards.
 
 ## Features
 
@@ -178,7 +178,9 @@ GNU General Public License v2.0 or later
 ## Credits
 
 - **Original Module**: JoomBoost (https://www.joomboost.com)
-- **Community Modernization**: Reworked by enthusiasts for Joomla! 4+ compatibility
+- **Remake / Rework**: Sergey Shcherbakov (https://sergeyscherbakov.ru, me@sergeyscherbakov.ru, GitHub: https://github.com/CoDeWebPro)
+- **Module Repository**: https://github.com/CoDeWebPro/easy-quick-contact-joomla
+- **Community Modernization**: Reworked for Joomla! 4+ compatibility
 
 ## Support
 
