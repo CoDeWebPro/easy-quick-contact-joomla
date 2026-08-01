@@ -95,14 +95,54 @@ jobs:
             --site-locale="en-GB" \
             --site-offline=0
 
+      - name: Validate manifest extension type and folder name
+        run: |
+          if [ ! -f "mod_easyquickcontact.xml" ]; then
+            echo "mod_easyquickcontact.xml not found in repo root" >&2
+            exit 1
+          fi
+          if ! grep -Ei '<extension[^>]*type="module"' mod_easyquickcontact.xml >/dev/null; then
+            echo "mod_easyquickcontact.xml does not declare a module (type=\"module\")" >&2
+            exit 1
+          fi
+          if ! grep -Ei 'mod_easyquickcontact' mod_easyquickcontact.xml >/dev/null; then
+            echo "Warning: mod_easyquickcontact.xml does not reference mod_easyquickcontact; ensure manifest and folder match." >&2
+          fi
+
       - name: Create module package archive
         run: |
-          zip -r module-package.zip . -x "module-package.zip" ".git/*" ".github/*" "node_modules/*" "vendor/*"
+          set -euo pipefail
+          PACKAGE_DIR=package
+          rm -rf "$PACKAGE_DIR"
+          mkdir -p "$PACKAGE_DIR"
+          if [ -d "modules/mod_easyquickcontact" ]; then
+            rsync -a --delete --exclude='.git' --exclude='node_modules' --exclude='vendor' modules/mod_easyquickcontact/ "$PACKAGE_DIR/mod_easyquickcontact/"
+          elif [ -d "mod_easyquickcontact" ]; then
+            rsync -a --delete --exclude='.git' --exclude='node_modules' --exclude='vendor' mod_easyquickcontact/ "$PACKAGE_DIR/mod_easyquickcontact/"
+          else
+            echo "Module source directory not found (expected modules/mod_easyquickcontact or mod_easyquickcontact)" >&2
+            ls -la
+            exit 1
+          fi
+          cp mod_easyquickcontact.xml "$PACKAGE_DIR/"
+          [ -f update.xml ] && cp update.xml "$PACKAGE_DIR/"
+          (cd "$PACKAGE_DIR" && zip -r ../module-package.zip .)
+          echo "module-package.zip created:"
+          unzip -l module-package.zip
 
-      - name: Install module with Joomla CLI
+      - name: Install module with Joomla CLI (show errors)
         run: |
+          set -euo pipefail
           cd joomla
-          php cli/joomla.php extension:install ../module-package.zip
+          if ! php cli/joomla.php extension:install ../module-package.zip 2>&1 | tee /tmp/joomla-install-output.txt; then
+            echo "Joomla extension installer reported an error. Showing package contents and installer output:" >&2
+            echo "----- installer output -----" >&2
+            cat /tmp/joomla-install-output.txt >&2 || true
+            echo "----- zip listing -----" >&2
+            unzip -l ../module-package.zip >&2 || true
+            echo "----- end -----" >&2
+            exit 1
+          fi
 
       - name: Verify module installation
         run: |
