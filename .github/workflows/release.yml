@@ -134,7 +134,7 @@ jobs:
         run: |
           set -euo pipefail
           cd joomla
-          if ! php cli/joomla.php extension:install ../module-package.zip 2>&1 | tee /tmp/joomla-install-output.txt; then
+          if ! php cli/joomla.php extension:install --path=../module-package.zip 2>&1 | tee /tmp/joomla-install-output.txt; then
             echo "Joomla extension installer reported an error. Showing package contents and installer output:" >&2
             echo "----- installer output -----" >&2
             cat /tmp/joomla-install-output.txt >&2 || true
