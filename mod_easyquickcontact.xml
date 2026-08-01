@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" client="site" method="upgrade">
 	<name>MOD_EASYQUICKCONTACT</name>
-	<version>2.0.1</version>
+	<version>2.0.2</version>
 	<creationDate>2026-08</creationDate>
 	<author>JoomBoost (original), Sergey Shcherbakov (remake)</author>
 	<authorEmail>me@sergeyscherbakov.ru</authorEmail>
@@ -220,4 +220,7 @@
 			</fieldset>
 		</fields>
 	</config>
+	<updateservers>
+		<server type="extension" priority="1" name="Easy Quick Contact Updates">https://raw.githubusercontent.com/CoDeWebPro/easy-quick-contact-joomla/main/update.xml</server>
+	</updateservers>
 </extension>
