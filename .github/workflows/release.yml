@@ -141,6 +141,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create ZIP package
+        id: package
         run: |
           PACKAGE_NAME="easy-quick-contact-joomla-${{ steps.version.outputs.VERSION }}.zip"
           zip -r "$PACKAGE_NAME" . -x ".git/*" ".github/*"
@@ -152,7 +153,7 @@ jobs:
           tag: v${{ steps.version.outputs.VERSION }}
           release_name: "Easy Quick Contact Joomla ${{ steps.version.outputs.VERSION }}"
           body: "Automatic release build for version ${{ steps.version.outputs.VERSION }}"
-          files: ${{ steps.version.outputs.PACKAGE_NAME }}
+          files: ${{ steps.package.outputs.PACKAGE_NAME }}
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
