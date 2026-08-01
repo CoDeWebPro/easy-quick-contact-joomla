@@ -189,7 +189,7 @@ This is a community-maintained module. For issues and feature requests, please u
 ## Changelog
 
 ### Version 2.0.0 (2026-08)
-- Complete modernization for Joomla! 4.x/5.x compatibility
+- Complete modernization for Joomla! 4.x/5.x/6.x compatibility
 - Implemented namespace structure and PSR-4 autoloading
 - Added dependency injection container
 - Migrated to Web Asset Manager
