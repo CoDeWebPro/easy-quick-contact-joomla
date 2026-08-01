@@ -177,7 +177,7 @@ GNU General Public License v2.0 or later
 
 ## Credits
 
-- **Original Module**: JoomBoost (https://www.joomboost.com)
+- **Original Module**: JoomBoost (https://www.joomboost.com/modules-changelogs/20-easy-quick-contact-changelog.html)
 - **Remake / Rework**: Sergey Shcherbakov (https://sergeyscherbakov.ru, me@sergeyscherbakov.ru, GitHub: https://github.com/CoDeWebPro)
 - **Module Repository**: https://github.com/CoDeWebPro/easy-quick-contact-joomla
 - **Community Modernization**: Reworked for Joomla! 4+ compatibility
