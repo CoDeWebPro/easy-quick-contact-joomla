@@ -150,6 +150,12 @@ The module uses Joomla!'s built-in mailer with:
 - Joomla! 4.0 or higher
 - Modern web browser with JavaScript enabled
 
+### Release workflow
+
+- Pushes to `main` trigger GitHub Actions to create a ZIP package, publish a GitHub Release, and attach the ZIP as an asset.
+- The repository stores source code; release packages are built automatically for distribution.
+- Included `update.xml` enables Joomla admin update checks for future versions.
+
 ### Modernization Changes
 
 This community version includes:

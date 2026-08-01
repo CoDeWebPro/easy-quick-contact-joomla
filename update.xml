@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<updates>
+  <update>
+    <name>Easy Quick Contact</name>
+    <description>Easy Quick Contact Joomla 6 module with popup modal and spam protection.</description>
+    <element>mod_easyquickcontact</element>
+    <type>module</type>
+    <version>2.0.0</version>
+    <infourl>https://github.com/CoDeWebPro/easy-quick-contact-joomla</infourl>
+    <downloads>
+      <downloadtype>full</downloadtype>
+      <downloadurl>https://github.com/CoDeWebPro/easy-quick-contact-joomla/releases/download/v2.0.0/easy-quick-contact-joomla-2.0.0.zip</downloadurl>
+    </downloads>
+    <maintainer>
+      <name>Sergey Shcherbakov</name>
+      <url>https://sergeyscherbakov.ru</url>
+    </maintainer>
+  </update>
+</updates>

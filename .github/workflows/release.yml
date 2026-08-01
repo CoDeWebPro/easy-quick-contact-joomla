@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version from manifest
+        id: version
+        run: |
+          VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" mod_easyquickcontact.xml)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create ZIP package
+        run: |
+          PACKAGE_NAME="easy-quick-contact-joomla-${{ steps.version.outputs.VERSION }}.zip"
+          zip -r "$PACKAGE_NAME" . -x ".git/*" ".github/*"
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release and upload package
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ steps.version.outputs.VERSION }}
+          release_name: "Easy Quick Contact Joomla ${{ steps.version.outputs.VERSION }}"
+          body: "Automatic release build for version ${{ steps.version.outputs.VERSION }}"
+          files: ${{ steps.version.outputs.PACKAGE_NAME }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
