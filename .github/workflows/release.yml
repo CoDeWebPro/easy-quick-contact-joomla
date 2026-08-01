@@ -68,7 +68,7 @@ jobs:
 
       - name: Download Joomla ${{ matrix.joomla }}
         run: |
-          echo "Downloading Joomla ${matrix.joomla}"
+          echo "Downloading Joomla ${{ matrix.joomla }}"
           curl -L "${{ matrix.package_url }}" -o joomla.zip
           unzip -q joomla.zip -d joomla
 
