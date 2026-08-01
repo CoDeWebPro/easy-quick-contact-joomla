@@ -159,6 +159,27 @@ class EasyQuickContactHelper
 			$result['errors']['email'] = Text::_('MOD_EASYQUICKCONTACT_ERROR_EMAIL_INVALID');
 		}
 
+		$phoneDigits = preg_replace('/\D+/', '', $phone) ?? '';
+
+		if ($phoneDigits !== '' && $phoneDigits[0] === '8') {
+			$phoneDigits = '7' . substr($phoneDigits, 1);
+		}
+
+		if ($phone === '' || $phone === '+7' || $phoneDigits === '' || $phoneDigits === '7') {
+			$result['errors']['phone'] = Text::_('MOD_EASYQUICKCONTACT_ERROR_PHONE');
+		} elseif (!preg_match('/^7\d{10}$/', $phoneDigits)) {
+			$result['errors']['phone'] = Text::_('MOD_EASYQUICKCONTACT_ERROR_PHONE_INVALID');
+		} else {
+			$phone = sprintf(
+				'+7 (%s) %s-%s-%s',
+				substr($phoneDigits, 1, 3),
+				substr($phoneDigits, 4, 3),
+				substr($phoneDigits, 7, 2),
+				substr($phoneDigits, 9, 2)
+			);
+			$result['postedPhone'] = $phone;
+		}
+
 		if ($message === '') {
 			$result['errors']['message'] = Text::_('MOD_EASYQUICKCONTACT_ERROR_MESSAGE');
 		}

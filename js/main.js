@@ -79,6 +79,64 @@
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 	}
 
+	function extractPhoneDigits(value) {
+		var digits = String(value || '').replace(/\D/g, '');
+
+		if (digits.charAt(0) === '8') {
+			digits = '7' + digits.slice(1);
+		}
+
+		if (digits.charAt(0) !== '7') {
+			digits = '7' + digits;
+		}
+
+		return digits.slice(0, 11);
+	}
+
+	function formatRuPhone(digits) {
+		var rest = digits.slice(1);
+		var out = '+7';
+
+		if (rest.length > 0) {
+			out += ' (' + rest.slice(0, Math.min(3, rest.length));
+		}
+
+		if (rest.length >= 3) {
+			out += ')';
+		}
+
+		if (rest.length > 3) {
+			out += ' ' + rest.slice(3, Math.min(6, rest.length));
+		}
+
+		if (rest.length > 6) {
+			out += '-' + rest.slice(6, Math.min(8, rest.length));
+		}
+
+		if (rest.length > 8) {
+			out += '-' + rest.slice(8, Math.min(10, rest.length));
+		}
+
+		return out;
+	}
+
+	function applyPhoneMask(field) {
+		var formatted = formatRuPhone(extractPhoneDigits(field.value));
+		if (field.value !== formatted) {
+			field.value = formatted;
+		}
+	}
+
+	function isValidPhone(value) {
+		return /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(value)
+			|| /^7\d{10}$/.test(extractPhoneDigits(value));
+	}
+
+	function isPhoneEmpty(value) {
+		var digits = extractPhoneDigits(value);
+		return !value || value === '+7' || digits === '7';
+	}
+
 	function validateField(field) {
 		if (!isValidatable(field)) {
 			return true;
@@ -86,6 +144,20 @@
 
 		clearFieldError(field);
 		var value = (field.value || '').trim();
+
+		if (field.classList.contains('eqc-phone')) {
+			if (isPhoneEmpty(value)) {
+				addError(field, field.getAttribute('data-eqc-error-empty') || '');
+				return false;
+			}
+
+			if (!isValidPhone(value)) {
+				addError(field, field.getAttribute('data-eqc-error-invalid') || '');
+				return false;
+			}
+
+			return true;
+		}
 
 		if (!value) {
 			addError(field, field.getAttribute('data-eqc-error-empty') || '');
@@ -110,11 +182,33 @@
 		return !hasError;
 	}
 
-	document.addEventListener('input', function (event) {
+	document.addEventListener('focusin', function (event) {
 		var field = event.target;
-		if (!isValidatable(field) || !closest(field, 'form.eqc-form')) {
+		if (!field || !field.classList || !field.classList.contains('eqc-phone')) {
 			return;
 		}
+		if (!closest(field, 'form.eqc-form')) {
+			return;
+		}
+		if (isPhoneEmpty(field.value)) {
+			field.value = '+7';
+		}
+	});
+
+	document.addEventListener('input', function (event) {
+		var field = event.target;
+		if (!field || !closest(field, 'form.eqc-form')) {
+			return;
+		}
+
+		if (field.classList.contains('eqc-phone')) {
+			applyPhoneMask(field);
+		}
+
+		if (!isValidatable(field)) {
+			return;
+		}
+
 		if (field.dataset.eqcTouched === '1' || field.classList.contains('invalid')) {
 			validateField(field);
 		}
@@ -135,6 +229,7 @@
 			return;
 		}
 
+		form.querySelectorAll('.eqc-phone').forEach(applyPhoneMask);
 		form.querySelectorAll('.requiredField, .requiredCaptcha').forEach(function (field) {
 			field.dataset.eqcTouched = '1';
 		});
@@ -147,6 +242,14 @@
 	document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('.mod-easyquickcontact[data-eqc-force-modal="1"]').forEach(function (wrap) {
 			openModal(wrap.querySelector('[data-eqc-modal]'));
+		});
+
+		document.querySelectorAll('form.eqc-form .eqc-phone').forEach(function (field) {
+			if (isPhoneEmpty(field.value)) {
+				field.value = '+7';
+			} else {
+				applyPhoneMask(field);
+			}
 		});
 	});
 })();

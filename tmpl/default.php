@@ -111,13 +111,22 @@ $contactId       = 'je_contact_' . $moduleId;
 				<div class="input">
 					<label id="je_hide" for="<?php echo $formId; ?>-phone"><?php echo htmlspecialchars($labelPhone, ENT_QUOTES, 'UTF-8'); ?></label>
 					<input
-						type="text"
+						type="tel"
 						name="je_phone"
 						id="<?php echo $formId; ?>-phone"
-						value="<?php echo htmlspecialchars($postedPhone, ENT_QUOTES, 'UTF-8'); ?>"
-						class="phone1"
-						placeholder="<?php echo htmlspecialchars($labelPhone, ENT_QUOTES, 'UTF-8'); ?>"
+						value="<?php echo htmlspecialchars($postedPhone !== '' ? $postedPhone : '+7', ENT_QUOTES, 'UTF-8'); ?>"
+						class="phone1 requiredField eqc-phone"
+						placeholder="+7 (___) ___-__-__"
+						autocomplete="tel"
+						inputmode="tel"
+						maxlength="18"
+						data-eqc-error-empty="<?php echo htmlspecialchars(Text::_('MOD_EASYQUICKCONTACT_ERROR_PHONE'), ENT_QUOTES, 'UTF-8'); ?>"
+						data-eqc-error-invalid="<?php echo htmlspecialchars(Text::_('MOD_EASYQUICKCONTACT_ERROR_PHONE_INVALID'), ENT_QUOTES, 'UTF-8'); ?>"
+						required
 					/>
+					<?php if (!empty($errors['phone'])) : ?>
+						<span class="error"><?php echo htmlspecialchars($errors['phone'], ENT_QUOTES, 'UTF-8'); ?></span>
+					<?php endif; ?>
 				</div>
 
 				<div class="input">
