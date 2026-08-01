@@ -12,6 +12,19 @@ jobs:
   test:
     name: Joomla compatibility tests
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: joomladb
+        ports:
+          - 3306:3306
+        options: >
+          --health-cmd="mysqladmin ping -h localhost --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     strategy:
       matrix:
         include:
@@ -25,6 +38,13 @@ jobs:
             php: "8.3.0"
             package_url: "https://downloads.joomla.org/cms/joomla6/6-1-2/Joomla_6-1-2-Stable-Full_Package.zip?format=zip"
 
+    env:
+      DB_HOST: 127.0.0.1
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: joomladb
+      DB_PORT: 3306
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,7 +56,15 @@ jobs:
           extensions: mbstring, xml, curl, json, zip, mysqli
 
       - name: Install required packages
-        run: sudo apt-get update && sudo apt-get install -y unzip rsync
+        run: sudo apt-get update && sudo apt-get install -y unzip rsync default-mysql-client
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..20}; do
+            mysqladmin ping -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" > /dev/null 2>&1 && exit 0
+            sleep 3
+          done
+          echo "MySQL did not become available" && exit 1
 
       - name: Download Joomla ${{ matrix.joomla }}
         run: |
@@ -44,10 +72,42 @@ jobs:
           curl -L "${{ matrix.package_url }}" -o joomla.zip
           unzip -q joomla.zip -d joomla
 
-      - name: Copy module into Joomla
+      - name: Create Joomla temporary directories
         run: |
-          mkdir -p joomla/modules/mod_easyquickcontact
-          rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='vendor' . joomla/modules/mod_easyquickcontact
+          mkdir -p joomla/tmp joomla/logs joomla/administrator/logs
+          chmod -R 775 joomla/tmp joomla/logs joomla/administrator/logs
+
+      - name: Install Joomla via CLI
+        run: |
+          cd joomla
+          php cli/joomla.php site:install \
+            --db-driver=mysqli \
+            --db-host="$DB_HOST" \
+            --db-user="$DB_USER" \
+            --db-pass="$DB_PASSWORD" \
+            --db-name="$DB_NAME" \
+            --db-prefix="jos_" \
+            --db-port="$DB_PORT" \
+            --site-name="Easy Quick Contact Test" \
+            --admin-user="admin" \
+            --admin-password="Admin123!" \
+            --admin-email="admin@example.com" \
+            --site-locale="en-GB" \
+            --site-offline=0
+
+      - name: Create module package archive
+        run: |
+          zip -r module-package.zip . -x ".git/*" ".github/*" "node_modules/*" "vendor/*"
+
+      - name: Install module with Joomla CLI
+        run: |
+          cd joomla
+          php cli/joomla.php extension:install ../module-package.zip
+
+      - name: Verify module installation
+        run: |
+          cd joomla
+          php cli/joomla.php extension:list --type=module | grep mod_easyquickcontact
 
       - name: Validate PHP syntax in module files
         run: |
