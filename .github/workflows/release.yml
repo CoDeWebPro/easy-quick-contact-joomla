@@ -115,17 +115,16 @@ jobs:
           PACKAGE_DIR=package
           rm -rf "$PACKAGE_DIR"
           mkdir -p "$PACKAGE_DIR"
-          if [ -d "modules/mod_easyquickcontact" ]; then
-            rsync -a --delete --exclude='.git' --exclude='node_modules' --exclude='vendor' modules/mod_easyquickcontact/ "$PACKAGE_DIR/mod_easyquickcontact/"
-          elif [ -d "mod_easyquickcontact" ]; then
-            rsync -a --delete --exclude='.git' --exclude='node_modules' --exclude='vendor' mod_easyquickcontact/ "$PACKAGE_DIR/mod_easyquickcontact/"
-          else
-            echo "Module source directory not found (expected modules/mod_easyquickcontact or mod_easyquickcontact)" >&2
-            ls -la
-            exit 1
-          fi
-          cp mod_easyquickcontact.xml "$PACKAGE_DIR/"
-          [ -f update.xml ] && cp update.xml "$PACKAGE_DIR/"
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='joomla' \
+            --exclude='joomla.zip' \
+            --exclude='package' \
+            --exclude='module-package.zip' \
+            ./ "$PACKAGE_DIR/"
           (cd "$PACKAGE_DIR" && zip -r ../module-package.zip .)
           echo "module-package.zip created:"
           unzip -l module-package.zip
@@ -173,6 +172,8 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
