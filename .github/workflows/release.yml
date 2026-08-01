@@ -56,12 +56,12 @@ jobs:
           extensions: mbstring, xml, curl, json, zip, mysqli
 
       - name: Install required packages
-        run: sudo apt-get update && sudo apt-get install -y unzip rsync default-mysql-client
+        run: sudo apt-get update && sudo apt-get install -y unzip rsync
 
       - name: Wait for MySQL
         run: |
-          for i in {1..20}; do
-            mysqladmin ping -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" > /dev/null 2>&1 && exit 0
+          for i in {1..30}; do
+            php -r 'new mysqli(getenv("DB_HOST"), getenv("DB_USER"), getenv("DB_PASSWORD"), getenv("DB_NAME"), getenv("DB_PORT")); if (mysqli_connect_errno()) exit(1);' && exit 0
             sleep 3
           done
           echo "MySQL did not become available" && exit 1
