@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site" method="upgrade">
+	<name>MOD_EASYQUICKCONTACT</name>
+	<version>2.0.0</version>
+	<creationDate>2026-08</creationDate>
+	<author>JoomBoost</author>
+	<authorEmail>support@joomboost.com</authorEmail>
+	<authorUrl>https://www.joomboost.com</authorUrl>
+	<copyright>Copyright 2013 - 2026 - https://www.joomboost.com</copyright>
+	<license>GNU/GPL</license>
+	<description>MOD_EASYQUICKCONTACT_XML_DESCRIPTION</description>
+	<namespace path="src">JoomBoost\Module\EasyQuickContact</namespace>
+	<files>
+		<folder module="mod_easyquickcontact">services</folder>
+		<folder>src</folder>
+		<folder>tmpl</folder>
+		<folder>css</folder>
+		<folder>js</folder>
+		<folder>language</folder>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/mod_easyquickcontact.ini</language>
+		<language tag="en-GB">language/en-GB/mod_easyquickcontact.sys.ini</language>
+		<language tag="ru-RU">language/ru-RU/mod_easyquickcontact.ini</language>
+		<language tag="ru-RU">language/ru-RU/mod_easyquickcontact.sys.ini</language>
+		<language tag="uk-UA">language/uk-UA/mod_easyquickcontact.ini</language>
+		<language tag="uk-UA">language/uk-UA/mod_easyquickcontact.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic" label="MOD_EASYQUICKCONTACT_FIELDSET_BASIC">
+				<field
+					name="popUp"
+					type="list"
+					label="MOD_EASYQUICKCONTACT_FIELD_DISPLAY_LABEL"
+					default="0"
+					filter="integer"
+					validate="options"
+					>
+					<option value="0">MOD_EASYQUICKCONTACT_FIELD_DISPLAY_NORMAL</option>
+					<option value="1">MOD_EASYQUICKCONTACT_FIELD_DISPLAY_POPUP</option>
+				</field>
+				<field
+					name="popUpButton"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_POPUP_BUTTON_LABEL"
+					description="MOD_EASYQUICKCONTACT_FIELD_POPUP_BUTTON_DESC"
+					default="Quick Contact"
+					filter="string"
+				/>
+				<field
+					name="intro"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_INTRO_LABEL"
+					description="MOD_EASYQUICKCONTACT_FIELD_INTRO_DESC"
+					default="Intro"
+					filter="string"
+				/>
+				<field
+					name="name"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_NAME_LABEL"
+					default="Name"
+					filter="string"
+				/>
+				<field
+					name="email"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_EMAIL_LABEL"
+					default="Email"
+					filter="string"
+				/>
+				<field
+					name="phone"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_PHONE_LABEL"
+					default="Phone"
+					filter="string"
+				/>
+				<field
+					name="message"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_MESSAGE_LABEL"
+					default="Message"
+					filter="string"
+				/>
+				<field
+					name="captcha_label"
+					type="list"
+					label="MOD_EASYQUICKCONTACT_FIELD_CAPTCHA_LABEL"
+					description="MOD_EASYQUICKCONTACT_FIELD_CAPTCHA_DESC"
+					default="1"
+					filter="integer"
+					validate="options"
+					>
+					<option value="1">JENABLED</option>
+					<option value="2">JDISABLED</option>
+				</field>
+				<field
+					name="captcha"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_CAPTCHA_TEXT_LABEL"
+					default="Captcha"
+					filter="string"
+					showon="captcha_label:1"
+				/>
+				<field
+					name="submit"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_SUBMIT_LABEL"
+					default="Send"
+					filter="string"
+				/>
+				<field
+					name="recipient"
+					type="email"
+					label="MOD_EASYQUICKCONTACT_FIELD_RECIPIENT_LABEL"
+					description="MOD_EASYQUICKCONTACT_FIELD_RECIPIENT_DESC"
+					default=""
+					filter="string"
+					required="true"
+					validate="email"
+				/>
+				<field
+					name="subject"
+					type="text"
+					label="MOD_EASYQUICKCONTACT_FIELD_SUBJECT_LABEL"
+					description="MOD_EASYQUICKCONTACT_FIELD_SUBJECT_DESC"
+					default="Easy Quick Contact"
+					filter="string"
+				/>
+			</fieldset>
+			<fieldset name="colors" label="MOD_EASYQUICKCONTACT_FIELDSET_COLORS">
+				<field
+					name="buttonBg"
+					type="color"
+					label="MOD_EASYQUICKCONTACT_FIELD_BUTTON_BG_LABEL"
+					default="#E60000"
+					format="hex"
+				/>
+				<field
+					name="buttonBgH"
+					type="color"
+					label="MOD_EASYQUICKCONTACT_FIELD_BUTTON_BG_HOVER_LABEL"
+					default="#333333"
+					format="hex"
+				/>
+				<field
+					name="buttonText"
+					type="color"
+					label="MOD_EASYQUICKCONTACT_FIELD_BUTTON_TEXT_LABEL"
+					default="#ffffff"
+					format="hex"
+				/>
+				<field
+					name="input_bg"
+					type="color"
+					label="MOD_EASYQUICKCONTACT_FIELD_INPUT_BG_LABEL"
+					default="#F5F5F5"
+					format="hex"
+				/>
+				<field
+					name="input_brd"
+					type="color"
+					label="MOD_EASYQUICKCONTACT_FIELD_INPUT_BORDER_LABEL"
+					default="#dddddd"
+					format="hex"
+				/>
+				<field
+					name="input_text"
+					type="color"
+					label="MOD_EASYQUICKCONTACT_FIELD_INPUT_TEXT_LABEL"
+					default="#333333"
+					format="hex"
+				/>
+			</fieldset>
+			<fieldset name="advanced">
+				<field
+					name="layout"
+					type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					class="form-select"
+					validate="moduleLayout"
+				/>
+				<field
+					name="moduleclass_sfx"
+					type="textarea"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					rows="3"
+					validate="CssIdentifier"
+				/>
+				<field
+					name="cache"
+					type="list"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					default="0"
+					filter="integer"
+					validate="options"
+					>
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field
+					name="cache_time"
+					type="number"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					default="900"
+					filter="integer"
+				/>
+				<field
+					name="cachemode"
+					type="hidden"
+					default="itemid"
+					>
+					<option value="itemid"></option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
