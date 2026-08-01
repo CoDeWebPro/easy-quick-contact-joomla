@@ -107,7 +107,11 @@ jobs:
       - name: Verify module installation
         run: |
           cd joomla
-          php cli/joomla.php extension:list --type=module | grep mod_easyquickcontact
+          php cli/joomla.php extension:list --type=module | tee /tmp/joomla-module-list.txt
+          grep -i -n 'mod_easyquickcontact\|easy quick contact\|MOD_EASYQUICKCONTACT' /tmp/joomla-module-list.txt || {
+            echo "Module mod_easyquickcontact not found in Joomla module list"
+            exit 1
+          }
 
       - name: Validate PHP syntax in module files
         run: |
