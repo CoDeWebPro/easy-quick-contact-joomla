@@ -97,7 +97,7 @@ jobs:
 
       - name: Create module package archive
         run: |
-          zip -r module-package.zip . -x ".git/*" ".github/*" "node_modules/*" "vendor/*"
+          zip -r module-package.zip . -x "module-package.zip" ".git/*" ".github/*" "node_modules/*" "vendor/*"
 
       - name: Install module with Joomla CLI
         run: |
@@ -144,7 +144,7 @@ jobs:
         id: package
         run: |
           PACKAGE_NAME="easy-quick-contact-joomla-${{ steps.version.outputs.VERSION }}.zip"
-          zip -r "$PACKAGE_NAME" . -x ".git/*" ".github/*"
+          zip -r "$PACKAGE_NAME" . -x "$PACKAGE_NAME" ".git/*" ".github/*"
           echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release and upload package
