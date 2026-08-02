@@ -41,6 +41,9 @@ $wrapId          = 'mod_eqc_' . $moduleId;
 $contactId       = 'je_contact_' . $moduleId;
 ?>
 <div id="<?php echo $wrapId; ?>" class="mod-easyquickcontact<?php echo $moduleclass_sfx ? ' ' . $moduleclass_sfx : ''; ?>"<?php echo $popUp && (!empty($emailSent) || $errors !== [] || !empty($mailError)) ? ' data-eqc-force-modal="1"' : ''; ?>>
+<?php if (!empty($module->showtitle)) : ?>
+	<h3 class="moduletitle<?php echo $moduleclass_sfx ? ' ' . $moduleclass_sfx : ''; ?>"><?php echo htmlspecialchars($module->title, ENT_QUOTES, 'UTF-8'); ?></h3>
+<?php endif; ?>
 <?php if ($popUp) : ?>
 	<div class="qcbutton">
 		<ul>
